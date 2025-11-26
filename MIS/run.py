@@ -65,29 +65,22 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         exit(1)
     algo = str(sys.argv[1])
-    execute_live(["bazel", "build", "//benchmarks/Counter/MIS/" + algo + ":MIS_main", "-c", "opt"], "../../..")
+    execute_live(["bazel", "build", "//MIS/" + algo + ":MIS_main", "-c", "opt"], "..")
     with open(algo + "/benchmark.csv", 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(["graph name", "Running Time", "Counter Initialization Time", "1", "2", "3"])
-        for graph in graphs:
+        for graph in graphs[30:]:
             times = []
-            if graph == "grid_1000_100000_sym" and algo == "baseline_spec_for":
-                times = [99999]
-            # elif graph == "flickr_sym" and algo == "deterministic":
-            #     times = [99999]
-            else:
-                times += execute(["bazel-bin/benchmarks/Counter/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "../../..")[1:]
-                times += execute(["bazel-bin/benchmarks/Counter/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "../../..")[1:]
-                pad_times_with_zeros(times)
-                times = np.array(times)
-                times = times.mean(axis=0).tolist()
+            times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
+            times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
+            pad_times_with_zeros(times)
+            times = np.array(times)
+            times = times.mean(axis=0).tolist()
             row = [graph] + times
             print(row)
             writer.writerow(row)
 
-# python3 run.py baseline_random_greedy
-# python3 run.py baseline_spec_for
-# python3 run.py deterministic
-# python3 run.py tas
-# python3 run.py approximate
-# python3 run.py deterministic_layered
+# python3 run.py 03_baseline_random_greedy
+# python3 run.py 04_baseline_spec_for
+# python3 run.py 05_deterministic
+# python3 run.py 06_concurrent

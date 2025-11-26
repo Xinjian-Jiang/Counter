@@ -30,6 +30,14 @@ bazel 7.7.1
 git clone --recursive https://github.com/201220022/Counter.git && cd Counter
 ```
 ## 3.编译运行
+cd 到MIS中任意一个文件夹
 ```bash
-cd 到MIS任意一个文件夹./example.sh
+./example.sh
+```
+## 4.批量运行
+创建python虚拟环境，并pip install所需的包，只要一次
+```bash
+python3 -m venv utils/python
+source utils/python/bin/activate
+
 ```

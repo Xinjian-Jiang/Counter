@@ -1,4 +1,5 @@
-GRAPH_PATH = "/data/graphs/bin/"
+#GRAPH_PATH = "/data/graphs/bin/"
+GRAPH_PATH = "/home/csgrads/xjian140/Counter3/testcases/bin/"
 graphs = [
     "sd_arc_sym",
     "friendster_sym",
@@ -7,7 +8,6 @@ graphs = [
     "planet_sym",
     "uk-2002_sym",
     "eu-2015-host_sym",
-    "grid_1000_100000_sym",
     "europe_sym",
     "indochina_sym",
     "enwiki-2023_sym",
