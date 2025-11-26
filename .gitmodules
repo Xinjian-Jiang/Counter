@@ -4,3 +4,6 @@
 [submodule "external/parlaylib"]
 	path = external/parlaylib
 	url = https://github.com/cmuparlay/parlaylib.git
+[submodule "external/aggregating-funnels"]
+	path = external/aggregating-funnels
+	url = https://github.com/Diuven/aggregating-funnels.git
