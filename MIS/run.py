@@ -69,7 +69,7 @@ if __name__ == "__main__":
     with open(algo + "/benchmark.csv", 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(["graph name", "Running Time", "Counter Initialization Time", "1", "2", "3"])
-        for graph in graphs[30:]:
+        for graph in graphs:
             times = []
             times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
             times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]

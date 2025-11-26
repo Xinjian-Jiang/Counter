@@ -35,9 +35,15 @@ cd 到MIS中任意一个文件夹
 ./example.sh
 ```
 ## 4.批量运行
+cd到外面Counter/
 创建python虚拟环境，并pip install所需的包，只要一次
 ```bash
 python3 -m venv utils/python
 source utils/python/bin/activate
-
+pip install -r requirements.txt
+deactivate
+```
+以后每次使用, cd到Counter/MIS/
+```bash
+./run.sh
 ```
