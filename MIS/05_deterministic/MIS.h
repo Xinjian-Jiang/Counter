@@ -1,6 +1,5 @@
 #pragma once
 #include "gbbs/gbbs.h"
-#include "gbbs/helpers/speculative_for.h"
 #include "deterministic_counter.h"
 
 namespace gbbs {
