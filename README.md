@@ -1,5 +1,6 @@
 # 计数器
-主打一个无脑，一行一行复制粘贴到终端最后包能跑的
+（暂时性的中文）
+一行一行复制粘贴到终端
 ## 准备构建工具
 ### 创建local文件夹
 ```bash
@@ -24,21 +25,11 @@ bazel --version
 bazel 7.7.1
 ```
 则安装成功
-### 下载安装git等其他工具
-如果一个机器连git都没有，那用户肯定有sudo，所以直接装就可以
-```bash
-sudo apt update
-sudo apt install -y git build-essential cmake pkg-config
-```
 ### 克隆这个项目
 ```bash
-git clone --recursive ...
-cd ~/Counter
+git clone --recursive https://github.com/201220022/Counter.git && cd Counter
 ```
-
-## 编译
+## 编译运行
 ```bash
-cd external/gbbs
-bazel build //...
-cd ../..
+cd 到MIS任意一个文件夹./example.sh
 ```
