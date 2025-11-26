@@ -1,0 +1,3 @@
+[submodule "external/gbbs"]
+	path = external/gbbs
+	url = https://github.com/ParAlg/gbbs.git
