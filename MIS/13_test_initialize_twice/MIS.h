@@ -9,8 +9,8 @@ template <class P, class W>
 struct GetNghs {
     P& p;
     GetNghs(P& p) : p(p) {}
-    inline bool updateAtomic(const uintE& s, const uintE& d, const W& wgh) { return p[d].set_zero_atomic(); }
-    inline bool update(const uintE& s, const uintE& d, const W& w) { return p[d].set_zero(); }
+    inline bool updateAtomic(const uintE& s, const uintE& d, const W& wgh) { return p[d].set_zero(); }
+    inline bool update(const uintE& s, const uintE& d, const W& w) { return updateAtomic(s, d, w); }
     inline bool cond(uintE d) { return p[d].not_zero(); }
 };
 
@@ -20,13 +20,10 @@ struct mis_f {
     uintE* perm;
     mis_f(Counter* _counters, uintE* _perm) : counters(_counters), perm(_perm) {}
     inline bool updateAtomic(const uintE& s, const uintE& d, const W& wgh) {
-        if (perm[s] < perm[d]) { return counters[d].decrement_atomic(); }
-        return false;
-    }
-    inline bool update(const uintE& s, const uintE& d, const W& w) { 
         if (perm[s] < perm[d]) { return counters[d].decrement(); }
         return false;
     }
+    inline bool update(const uintE& s, const uintE& d, const W& w) { return updateAtomic(s, d, w); }
     inline bool cond(uintE d) { return counters[d].not_zero(); }
 };
 
@@ -46,6 +43,15 @@ inline sequence<bool> MaximalIndependentSet(Graph& G) {
         return Counter(cnt);
     });
     std::cout << "## Counter initialization time = " << t1.stop() << std::endl;
+
+    timer t11; t11.start();
+    auto counters1 = parlay::tabulate<Counter>(n, [&](size_t i){
+        uintE our_pri = perm[i];
+        auto count_f = [&](uintE src, uintE ngh, const W& wgh) { return perm[ngh] < our_pri;};
+        int cnt = static_cast<int>(G.get_vertex(i).out_neighbors().count(count_f));
+        return Counter(cnt);
+    });
+    std::cout << "## Counter initialization time2 = " << t11.stop() << std::endl;
 
     // 初始化frontier(rootset): counter为0的点
     auto roots = vertexSubset(n, std::move(parlay::pack_index<uintE>(

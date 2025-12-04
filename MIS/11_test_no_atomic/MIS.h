@@ -1,6 +1,6 @@
 #pragma once
 #include "gbbs/gbbs.h"
-#include "deterministic_counter.h"
+#include "no_atomic_counter.h"
 
 namespace gbbs {
 namespace MaximalIndependentSet_rootset {
@@ -9,8 +9,8 @@ template <class P, class W>
 struct GetNghs {
     P& p;
     GetNghs(P& p) : p(p) {}
-    inline bool updateAtomic(const uintE& s, const uintE& d, const W& wgh) { return p[d].set_zero_atomic(); }
-    inline bool update(const uintE& s, const uintE& d, const W& w) { return p[d].set_zero(); }
+    inline bool updateAtomic(const uintE& s, const uintE& d, const W& wgh) { return p[d].set_zero(); }
+    inline bool update(const uintE& s, const uintE& d, const W& w) { return updateAtomic(s, d, w); }
     inline bool cond(uintE d) { return p[d].not_zero(); }
 };
 
@@ -20,13 +20,10 @@ struct mis_f {
     uintE* perm;
     mis_f(Counter* _counters, uintE* _perm) : counters(_counters), perm(_perm) {}
     inline bool updateAtomic(const uintE& s, const uintE& d, const W& wgh) {
-        if (perm[s] < perm[d]) { return counters[d].decrement_atomic(); }
-        return false;
-    }
-    inline bool update(const uintE& s, const uintE& d, const W& w) { 
         if (perm[s] < perm[d]) { return counters[d].decrement(); }
         return false;
     }
+    inline bool update(const uintE& s, const uintE& d, const W& w) { return updateAtomic(s, d, w); }
     inline bool cond(uintE d) { return counters[d].not_zero(); }
 };
 

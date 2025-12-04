@@ -23,6 +23,9 @@ def parse_output(text):
         # Counter initialization time（可选）
         m_init = re.search(r"## Counter initialization time\s*=\s*([0-9.eE+-]+)", blk)
         counter_init = [float(m_init.group(1))] if m_init else []
+        m_init = re.search(r"## Counter initialization time2\s*=\s*([0-9.eE+-]+)", blk)
+        if m_init:
+            counter_init += [float(m_init.group(1))]
 
         # 各 round（可选）
         round_times = re.findall(r"## round\s*=\s*\d+\s*time\s*=\s*([0-9.eE+-]+)", blk)
@@ -76,7 +79,8 @@ if __name__ == "__main__":
     algo = str(sys.argv[1])
     record = str(sys.argv[2])
     execute_live(["mkdir", "-p", "output"], algo)
-    # graphs = ["HepPh_sym"]
+    #graphs = ["HepPh_sym"]
+    #graphs = ["friendster_sym"]
     if algo == "01_sequential" or algo == "02_sequential_dag":
         execute_live(["make"], algo)
         with open(algo + "/benchmark.csv", 'w', newline='', encoding='utf-8') as f:
@@ -98,7 +102,6 @@ if __name__ == "__main__":
                     times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
                     times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
                 else:
-                    times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", "-verify", GRAPH_PATH + graph + ".bin"], "..")[1:]
                     times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", "-verify", GRAPH_PATH + graph + ".bin"], "..")[1:]
                 pad_times_with_zeros(times)
                 times = np.array(times)
