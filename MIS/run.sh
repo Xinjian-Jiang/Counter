@@ -9,4 +9,5 @@ source ../utils/python/bin/activate
 # python3 run.py 11_test_no_atomic 0
 # python3 run.py 12_test_all_atomic 0
 # python3 run.py 13_test_duplicate 0
-python3 run.py 14_test_pointer 0
+# python3 run.py 14_test_pointer 0
+python3 run.py 15_test_virtual 0
