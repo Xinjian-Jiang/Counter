@@ -35,7 +35,7 @@ double MaximalIndependentSet_runner(Graph& G, commandLine P) {
     auto MaximalIndependentSet = MaximalIndependentSet_rootset::MaximalIndependentSet(G);
     tt = t.stop(); std::cout << "### Running Time: " << tt << std::endl;
 
-    if (P.getOption("-verify")) print_mis(MaximalIndependentSet, "13_test_initialize_twice", get_graphname(P.getArgument(0)));
+    if (P.getOption("-verify")) print_mis(MaximalIndependentSet, "14_test_pointer", get_graphname(P.getArgument(0)));
     return tt;
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "gbbs/gbbs.h"
-#include "11_test_no_atomic.h"
+#include "14_test_pointer.h"
 
 namespace gbbs {
 namespace MaximalIndependentSet_rootset {

@@ -1,5 +1,5 @@
-#GRAPH_PATH = "/data/graphs/bin/"
-GRAPH_PATH = "/home/csgrads/xjian140/Counter3/testcases/bin/"
+GRAPH_PATH = "/data/graphs/bin/"
+#GRAPH_PATH = "/home/csgrads/xjian140/Counter3/testcases/bin/"
 graphs = [
     "sd_arc_sym",
     "friendster_sym",

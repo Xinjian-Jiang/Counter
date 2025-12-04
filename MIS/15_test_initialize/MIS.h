@@ -1,6 +1,6 @@
 #pragma once
 #include "gbbs/gbbs.h"
-#include "11_test_no_atomic.h"
+#include "deterministic_counter.h"
 
 namespace gbbs {
 namespace MaximalIndependentSet_rootset {
@@ -36,9 +36,9 @@ inline sequence<bool> MaximalIndependentSet(Graph& G) {
     using W = typename Graph::weight_type;
 
     // 初始化计数器
-    timer t1; t1.start();
     size_t n = G.n;
     auto perm = parlay::random_permutation<uintE>(n);
+    timer t1; t1.start();
     auto counters = parlay::tabulate<Counter>(n, [&](size_t i){
         uintE our_pri = perm[i];
         auto count_f = [&](uintE src, uintE ngh, const W& wgh) { return perm[ngh] < our_pri;};
@@ -46,6 +46,15 @@ inline sequence<bool> MaximalIndependentSet(Graph& G) {
         return Counter(cnt);
     });
     std::cout << "## Counter initialization time = " << t1.stop() << std::endl;
+
+    timer t11; t11.start();
+    auto counters2 = parlay::tabulate<Counter>(n, [&](size_t i){
+        uintE our_pri = perm[i];
+        auto count_f = [&](uintE src, uintE ngh, const W& wgh) { return perm[ngh] < our_pri;};
+        int cnt = static_cast<int>(G.get_vertex(i).out_neighbors().count(count_f));
+        return Counter(cnt);
+    });
+    std::cout << "## Counter initialization time2 = " << t11.stop() << std::endl;
 
     // 初始化frontier(rootset): counter为0的点
     auto roots = vertexSubset(n, std::move(parlay::pack_index<uintE>(
