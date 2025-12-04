@@ -1,39 +1,3 @@
-// This code is part of the project "Theoretically Efficient Parallel Graph
-// Algorithms Can Be Fast and Scalable", presented at Symposium on Parallelism
-// in Algorithms and Architectures, 2018.
-// Copyright (c) 2018 Laxman Dhulipala, Guy Blelloch, and Julian Shun
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all  copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-// Usage:
-// numactl -i all ./MaximalIndependentSet -stats -rounds 4 -s
-// com-orkut.ungraph.txt_SJ
-// flags:
-//   required:
-//     -s : indicate that the graph is symmetric
-//   optional:
-//     -m : indicate that the graph should be mmap'd
-//     -c : indicate that the graph is compressed
-//     -rounds : the number of times to run the algorithm
-//     -stats : print the #ccs, and the #vertices in the largest cc
-//     -specfor : run the speculative_for based algorithm from pbbs
-
 #include "MIS.h"
 #include <fstream>
 #include <iostream>
@@ -41,22 +5,15 @@
 
 inline std::string get_graphname(const std::string& fullpath) {
     std::string name = fullpath;
-    size_t pos1 = name.find_last_of('/');
-    if (pos1 != std::string::npos) {
-        name = name.substr(pos1 + 1);
-    }
-    size_t pos2 = name.find_last_of('.');
-    if (pos2 != std::string::npos) {
-        name = name.substr(0, pos2);
-    }
+    size_t pos1 = name.find_last_of('/'); if (pos1 != std::string::npos) name = name.substr(pos1 + 1);
+    size_t pos2 = name.find_last_of('.'); if (pos2 != std::string::npos) name = name.substr(0, pos2);
     return name;
 }
+
 template <typename T>
 void print_mis(parlay::sequence<T>& mis, std::string algo, std::string graphname) {
-    std::ofstream out("benchmarks/Counter/MIS/" + algo + "/output/" + graphname + ".txt");
-    int cnt = 0;
-    for (size_t i = 0; i < mis.size(); i++) cnt += mis[i];
-    out << cnt;
+    std::ofstream out("MIS/" + algo + "/output/" + graphname + ".txt");
+    int cnt = 0; for (size_t i = 0; i < mis.size(); i++) cnt += mis[i]; out << cnt;
     for (size_t i = 0; i < mis.size(); i++) { if (mis[i]) { out << "," << i; } }
     out.close();
 }
@@ -66,33 +23,22 @@ namespace gbbs {
 
 template <class Graph>
 double MaximalIndependentSet_runner(Graph& G, commandLine P) {
-    bool spec_for = P.getOption("-specfor");
-    std::cout << "### Application: MaximalIndependentSet" << std::endl;
+    std::cout << "### ===================================================================" << std::endl;
+    std::cout << "### Application: MIS" << std::endl;
     std::cout << "### Graph: " << P.getArgument(0) << std::endl;
     std::cout << "### Threads: " << num_workers() << std::endl;
     std::cout << "### n: " << G.n << std::endl;
     std::cout << "### m: " << G.m << std::endl;
-    std::cout << "### Params: -specfor (deterministic reservations) = "
-                << spec_for << std::endl;
-    std::cout << "### ------------------------------------" << std::endl;
+    std::cout << "### Params: -verify = " << bool(P.getOption("-verify")) << std::endl;
 
-    assert(P.getOption("-s"));
-    double tt = 0.0;
+    double tt = 0.0; timer t; t.start();
+    auto MaximalIndependentSet = MaximalIndependentSet_rootset::MaximalIndependentSet(G);
+    tt = t.stop(); std::cout << "### Running Time: " << tt << std::endl;
 
-    timer t;
-    t.start();
-    auto MaximalIndependentSet =
-        MaximalIndependentSet_rootset::MaximalIndependentSet(G);
-    tt = t.stop();
-    auto size_f = [&](size_t i) { return MaximalIndependentSet[i]; };
-    auto size_imap = parlay::delayed_seq<size_t>(G.n, size_f);
-    // =================================================================================
-    // print_mis(MaximalIndependentSet, "deterministic", get_graphname(P.getOptionValue("-b")));
-    // =================================================================================
-    std::cout << "### Running Time: " << tt << std::endl;
+    if (P.getOption("-verify")) print_mis(MaximalIndependentSet, "05_deterministic", get_graphname(P.getArgument(0)));
     return tt;
 }
 
-}  // namespace gbbs
+} // namespace gbbs
 
 generate_main(gbbs::MaximalIndependentSet_runner, false);

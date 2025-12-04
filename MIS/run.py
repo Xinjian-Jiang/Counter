@@ -47,40 +47,62 @@ def execute(command, cwd=""):
 
     return parse_output(stdout)
 
+def execute_seq(command, cwd=""):
+    print(" ".join(command))
+    result = subprocess.run(
+        command, cwd=cwd,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        universal_newlines=True
+    )
+    stdout = result.stdout
+    print(stdout)
+    if result.stderr:
+        print(result.stderr)
+
+    return float(stdout)
+
 def execute_live(command, cwd=""):
     print(" ".join(command))
     process = subprocess.Popen(command, cwd=cwd)
     process.wait()
 
 def pad_times_with_zeros(times):
-    # 找到最长行的长度
     max_len = max(len(row) for row in times)
-
-    # 每行补齐到同样长度
     for i in range(len(times)):
         if len(times[i]) < max_len:
             times[i] += [0.0] * (max_len - len(times[i]))
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        exit(1)
     algo = str(sys.argv[1])
-    execute_live(["bazel", "build", "//MIS/" + algo + ":MIS_main", "-c", "opt"], "..")
-    with open(algo + "/benchmark.csv", 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(["graph name", "Running Time", "Counter Initialization Time", "1", "2", "3"])
-        for graph in graphs:
-            times = []
-            times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
-            times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
-            pad_times_with_zeros(times)
-            times = np.array(times)
-            times = times.mean(axis=0).tolist()
-            row = [graph] + times
-            print(row)
-            writer.writerow(row)
-
-# python3 run.py 03_baseline_random_greedy
-# python3 run.py 04_baseline_spec_for
-# python3 run.py 05_deterministic
-# python3 run.py 06_concurrent
+    record = str(sys.argv[2])
+    execute_live(["mkdir", "-p", "output"], algo)
+    # graphs = ["HepPh_sym"]
+    if algo == "01_sequential" or algo == "02_sequential_dag":
+        execute_live(["make"], algo)
+        with open(algo + "/benchmark.csv", 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["graph name", "Running Time"])
+            for graph in graphs:
+                times = execute_seq(["./MIS", GRAPH_PATH + graph + ".bin", record], algo)
+                row = [graph, times]
+                print(row)
+                writer.writerow(row)
+    else:
+        execute_live(["bazel", "build", "//MIS/" + algo + ":MIS_main", "-c", "opt"], "..")
+        with open(algo + "/benchmark.csv", 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["graph name", "Running Time", "Counter Initialization Time", "1", "2", "3"])
+            for graph in graphs:
+                times = []
+                if record == "0":
+                    times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
+                    times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", GRAPH_PATH + graph + ".bin"], "..")[1:]
+                else:
+                    times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", "-verify", GRAPH_PATH + graph + ".bin"], "..")[1:]
+                    times += execute(["bazel-bin/MIS/" + algo + "/MIS_main", "-s", "-b", "-verify", GRAPH_PATH + graph + ".bin"], "..")[1:]
+                pad_times_with_zeros(times)
+                times = np.array(times)
+                times = times.mean(axis=0).tolist()
+                row = [graph] + times
+                print(row)
+                writer.writerow(row)

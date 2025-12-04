@@ -16,9 +16,9 @@ if __name__ == "__main__":
         exit(1)
     algo1 = str(sys.argv[1])
     algo2 = str(sys.argv[2])
+    # graphs = ["HepPh_sym"]
+    print("=============== ", algo1, " VS ", algo2, " ===============")
     for graph in graphs:
         path1 = algo1 + "/output/" + graph + ".txt"
         path2 = algo2 + "/output/" + graph + ".txt"
         print(files_equal(path1, path2), graph)
-
-# python3 verify.py 01_sequential 02_sequential_dag

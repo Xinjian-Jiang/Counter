@@ -137,21 +137,3 @@ int main(int argc, char* argv[]) {
     }
     return 0;
 }
-/*
-    auto mis_flags = parlay::sequence<bool>(G.n, false);
-    parlay::parallel_for(0, mis_set.size(), [&](size_t i) {
-        mis_flags[mis_set[i]] = true;
-    });
-    auto bad_edges_count = parlay::delayed_seq<size_t>(G.n, [&](size_t u) {
-        if (!mis_flags[u]) return (size_t)0;
-        size_t local_conflicts = 0;
-        for (size_t e = G.offsets[u]; e < G.offsets[u + 1]; e++) {
-            if (mis_flags[G.edges[e].v]) {
-                local_conflicts++;
-            }
-        }
-        return local_conflicts;
-    });
-    size_t bad_edges = parlay::reduce(bad_edges_count);
-    if (bad_edges != 0) std::cout << "❌ MIS invalid: " << bad_edges << " conflicting edges" << std::endl;
-*/

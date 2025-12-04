@@ -1,6 +1,6 @@
 #pragma once
 #include "gbbs/gbbs.h"
-#include "deterministic_counter.h"
+#include "perthread_counter.h"
 
 namespace gbbs {
 namespace MaximalIndependentSet_rootset {
@@ -11,8 +11,7 @@ struct GetNghs {
     GetNghs(P& p) : p(p) {}
     inline bool updateAtomic(const uintE& s, const uintE& d, const W& wgh) {
         auto& ctr = p[d];
-        if (!ctr.is_zero()) { ctr.set_zero(); return true; }
-        else { return false; }
+        return ctr.set_zero();
     }
     inline bool update(const uintE& s, const uintE& d, const W& w) { return updateAtomic(s, d, w); }
     inline bool cond(uintE d) { return !p[d].is_zero(); }
@@ -46,6 +45,7 @@ inline sequence<bool> MaximalIndependentSet(Graph& G) {
         int cnt = static_cast<int>(G.get_vertex(i).out_neighbors().count(count_f));
         return Counter(cnt);
     });
+
     std::cout << "## Counter initialization time = " << t1.stop() << std::endl;
 
     // 初始化frontier(rootset): counter为0的点
@@ -71,14 +71,3 @@ inline sequence<bool> MaximalIndependentSet(Graph& G) {
 
 }  // namespace MaximalIndependentSet_rootset
 }  // namespace gbbs
-
-
-/*
-    auto counters = sequence<Counter>(n);
-    parallel_for(0, n, 1, [&](size_t i) {
-        uintE our_pri = perm[i];
-        auto count_f = [&](uintE src, uintE ngh, const W& wgh) { return perm[ngh] < our_pri; };
-        int cnt = static_cast<int>(G.get_vertex(i).out_neighbors().count(count_f));
-        counters[i] = Counter(cnt);
-    });
-*/

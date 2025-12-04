@@ -1,14 +1,20 @@
 #pragma once
+#include <atomic>
 #include <cstddef>
+#include "gbbs/gbbs.h"
+
 struct Counter {
     int value;
     Counter(int value_) : value(value_) {}
-    Counter(const Counter& other): value(other.value) { }
-    inline bool decrement() noexcept { return __atomic_fetch_add(&value, -1, __ATOMIC_RELAXED) == 1; }
+    Counter(const Counter& other) : value(other.value){}
+    inline bool decrement() noexcept { return gbbs::fetch_and_add(&value, -1) == 1; }
     inline bool is_zero() const noexcept { return value == 0; }
-    inline void set_zero() noexcept { value = 0; }
+    inline bool set_zero() noexcept { 
+        auto v = value;
+        if (v > 0 && gbbs::atomic_compare_and_swap(&value, v, 0)) return true;
+        return false;
+    }
 };
-
 
 /*struct Counter {
     std::atomic<int> value;

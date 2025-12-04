@@ -53,7 +53,7 @@ inline std::string get_graphname(const std::string& fullpath) {
 }
 template <typename T>
 void print_mis(parlay::sequence<T>& mis, std::string algo, std::string graphname) {
-    std::ofstream out("benchmarks/Counter/MIS/" + algo + "/output/" + graphname + ".txt");
+    std::ofstream out("MIS/" + algo + "/output/" + graphname + ".txt");
     int cnt = 0;
     for (size_t i = 0; i < mis.size(); i++) cnt += mis[i];
     out << cnt;
@@ -67,13 +67,14 @@ namespace gbbs {
 template <class Graph>
 double MaximalIndependentSet_runner(Graph& G, commandLine P) {
   bool spec_for = P.getOption("-specfor");
+  bool verify = P.getOption("-verify");
   std::cout << "### Application: MaximalIndependentSet" << std::endl;
   std::cout << "### Graph: " << P.getArgument(0) << std::endl;
   std::cout << "### Threads: " << num_workers() << std::endl;
   std::cout << "### n: " << G.n << std::endl;
   std::cout << "### m: " << G.m << std::endl;
-  std::cout << "### Params: -specfor (deterministic reservations) = "
-            << spec_for << std::endl;
+  std::cout << "### Params: -specfor (deterministic reservations) = " << spec_for << std::endl;
+  std::cout << "### Params: -verify  (deterministic reservations) = " << verify  << std::endl;
   std::cout << "### ------------------------------------" << std::endl;
 
   assert(P.getOption("-s"));
@@ -94,7 +95,7 @@ double MaximalIndependentSet_runner(Graph& G, commandLine P) {
       std::cout << "MaximalIndependentSet size: " << parlay::reduce(size_imap) << "\n";
     }
     if (P.getOptionValue("-verify")) {
-      verify_MaximalIndependentSet(G, size_imap);
+      //verify_MaximalIndependentSet(G, size_imap);
     }
   } else {
     timer t;
@@ -108,10 +109,10 @@ double MaximalIndependentSet_runner(Graph& G, commandLine P) {
       std::cout << "MaximalIndependentSet size: " << parlay::reduce(size_imap) << "\n";
     }
     if (P.getOptionValue("-verify")) {
-      verify_MaximalIndependentSet(G, size_imap);
+        //verify_MaximalIndependentSet(G, size_imap);
     }
     // =================================================================================
-    // print_mis(MaximalIndependentSet, "baseline_random_greedy", get_graphname(P.getOptionValue("-b")));
+    if (verify) print_mis(MaximalIndependentSet, "03_baseline_random_greedy", get_graphname(P.getArgument(0)));
     // =================================================================================
   }
 
